@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Luna — Period Tracker</title>
+
+<style>
+:root{
+  --bg:#fff7fb;
+  --card:#ffffff;
+  --text:#29202a;
+  --muted:#887782;
+  --pink:#e95791;
+  --pink2:#ff8fba;
+  --soft:#ffe4ef;
+  --purple:#9b78d8;
+  --green:#63b995;
+  --border:#f1dce6;
+  --shadow:0 12px 35px rgba(150,65,105,.10);
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:linear-gradient(145deg,#fff8fc,#fff0f7);
+  color:var(--text);
+}
+
+body.dark{
+  --bg:#171319;
+  --card:#211b21;
+  --text:#fff3f8;
+  --muted:#b9aab3;
+  --border:#3b3038;
+  --soft:#402531;
+  background:#171319;
+}
+
+button,input,select,textarea{font:inherit}
+
+.app{
+  max-width:1100px;
+  margin:auto;
+  padding:20px;
+}
+
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:22px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.logo{
+  width:48px;
+  height:48px;
+  display:grid;
+  place-items:center;
+  border-radius:16px;
+  background:linear-gradient(135deg,var(--pink),var(--purple));
+  color:white;
+  font-size:25px;
+  box-shadow:var(--shadow);
+}
+
+.brand h1{
+  margin:0;
+  font-size:23px;
+}
+
+.brand small{color:var(--muted)}
+
+.icon-btn{
+  border:0;
+  background:var(--card);
+  color:var(--text);
+  border:1px solid var(--border);
+  width:44px;
+  height:44px;
+  border-radius:14px;
+  cursor:pointer;
+}
+
+.hero{
+  background:linear-gradient(135deg,#ef6299,#a87bdc);
+  color:white;
+  border-radius:28px;
+  padding:28px;
+  box-shadow:var(--shadow);
+  margin-bottom:18px;
+}
+
+.hero-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.hero h2{
+  margin:0 0 8px;
+  font-size:28px;
+}
+
+.hero p{margin:0;opacity:.88}
+
+.progress{
+  margin-top:24px;
+  height:10px;
+  border-radius:20px;
+  background:rgba(255,255,255,.25);
+  overflow:hidden;
+}
+
+.progress span{
+  display:block;
+  height:100%;
+  background:white;
+  border-radius:20px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(12,1fr);
+  gap:16px;
+}
+
+.card{
+  grid-column:span 4;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:22px;
+  padding:20px;
+  box-shadow:var(--shadow);
+}
+
+.card.wide{grid-column:span 8}
+.card.full{grid-column:1/-1}
+
+.card h3{
+  margin:0 0 15px;
+  font-size:17px;
+}
+
+.stat{
+  font-size:30px;
+  font-weight:750;
+}
+
+.muted{color:var(--muted)}
+
+.primary{
+  border:0;
+  padding:13px 17px;
+  border-radius:13px;
+  background:var(--pink);
+  color:white;
+  font-weight:650;
+  cursor:pointer;
+}
+
+.secondary{
+  border:1px solid var(--border);
+  padding:11px 14px;
+  border-radius:13px;
+  background:var(--card);
+  color:var(--text);
+  cursor:pointer;
+}
+
+.row{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+input,select,textarea{
+  width:100%;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:var(--bg);
+  color:var(--text);
+  padding:12px;
+  outline:none;
+}
+
+textarea{min-height:90px;resize:vertical}
+
+label{
+  display:block;
+  color:var(--muted);
+  font-size:13px;
+  margin:12px 0 6px;
+}
+
+.symptoms{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+}
+
+.symptom{
+  border:1px solid var(--border);
+  background:var(--bg);
+  color:var(--text);
+  padding:10px;
+  border-radius:12px;
+  cursor:pointer;
+}
+
+.symptom.active{
+  background:var(--soft);
+  border-color:var(--pink2);
+  color:var(--pink);
+}
+
+.calendar-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:12px;
+}
+
+.calendar{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:6px;
+}
+
+.day-name{
+  text-align:center;
+  color:var(--muted);
+  font-size:12px;
+  padding:5px;
+}
+
+.day{
+  min-height:46px;
+  border-radius:12px;
+  background:var(--bg);
+  border:1px solid transparent;
+  display:grid;
+  place-items:center;
+  position:relative;
+  cursor:pointer;
+}
+
+.day:hover{border-color:var(--pink2)}
+
+.day.today{
+  border:2px solid var(--pink);
+  font-weight:bold;
+}
+
+.day.period{
+  background:#ffd8e8;
+  color:#c72e69;
+}
+
+.day.ovulation{
+  background:#e8dcff;
+  color:#7450b8;
+}
+
+.day.fertile{
+  background:#eee6ff;
+  color:#765bb0;
+}
+
+.day small{
+  position:absolute;
+  bottom:3px;
+  font-size:8px;
+}
+
+.legend{
+  display:flex;
+  gap:15px;
+  flex-wrap:wrap;
+  margin-top:14px;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.dot{
+  display:inline-block;
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  margin-right:5px;
+}
+
+.period-dot{background:#ffd8e8}
+.ov-dot{background:#e8dcff}
+.today-dot{border:2px solid var(--pink)}
+
+.bar{
+  margin:10px 0 17px;
+}
+
+.bar-label{
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+  margin-bottom:5px;
+}
+
+.bar-track{
+  height:8px;
+  background:var(--soft);
+  border-radius:20px;
+}
+
+.bar-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--pink),var(--purple));
+  border-radius:20px;
+}
+
+.empty{
+  text-align:center;
+  padding:20px;
+  color:var(--muted);
+}
+
+footer{
+  text-align:center;
+  color:var(--muted);
+  font-size:12px;
+  padding:28px 0;
+}
+
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(20,10,20,.5);
+  display:none;
+  place-items:center;
+  padding:20px;
+  z-index:10;
+}
+
+.modal.show{display:grid}
+
+.modal-box{
+  max-width:480px;
+  width:100%;
+  background:var(--card);
+  border-radius:24px;
+  padding:24px;
+  max-height:90vh;
+  overflow:auto;
+}
+
+.close{
+  float:right;
+  border:0;
+  background:transparent;
+  color:var(--muted);
+  font-size:22px;
+  cursor:pointer;
+}
+
+.toast{
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#29202a;
+  color:white;
+  padding:12px 18px;
+  border-radius:13px;
+  display:none;
+  z-index:20;
+}
+
+@media(max-width:800px){
+  .card,.card.wide{grid-column:1/-1}
+}
+
+@media(max-width:500px){
+  .app{padding:12px}
+  .hero{padding:22px}
+  .hero h2{font-size:23px}
+  .symptoms{grid-template-columns:repeat(2,1fr)}
+  .calendar{gap:3px}
+  .day{min-height:40px;font-size:13px}
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<header>
+  <div class="brand">
+    <div class="logo">🌙</div>
+    <div>
+      <h1>Luna</h1>
+      <small>Your private cycle companion</small>
+    </div>
+  </div>
+  <button class="icon-btn" onclick="toggleDark()">🌙</button>
+</header>
+
+<section class="hero">
+  <div class="hero-top">
+    <div>
+      <h2 id="cycleTitle">Cycle Day —</h2>
+      <p id="cycleMessage">Add your latest period to get started.</p>
+    </div>
+    <div style="font-size:42px">🌸</div>
+  </div>
+  <div class="progress"><span id="cycleProgress" style="width:0%"></span></div>
+</section>
+
+<div class="grid">
+
+  <section class="card">
+    <h3>Next Period</h3>
+    <div class="stat" id="nextPeriod">—</div>
+    <div class="muted" id="periodDate">Log a period first</div>
+  </section>
+
+  <section class="card">
+    <h3>Ovulation</h3>
+    <div class="stat" id="ovulationDate">—</div>
+    <div class="muted">Estimated fertile window</div>
+  </section>
+
+  <section class="card">
+    <h3>Cycle Length</h3>
+    <div class="stat"><span id="cycleLength">28</span> days</div>
+    <div class="muted">Average cycle</div>
+  </section>
+
+  <section class="card wide">
+    <h3>Quick Actions</h3>
+    <div class="row">
+      <button class="primary" onclick="openPeriodModal()">🩸 Log Period</button>
+      <button class="secondary" onclick="scrollToTracker()">📝 Daily Check-in</button>
+      <button class="secondary" onclick="exportData()">⬇ Export Data</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>Cycle Insights</h3>
+    <div class="bar">
+      <div class="bar-label"><span>Cycle progress</span><b id="progressText">0%</b></div>
+      <div class="bar-track"><div class="bar-fill" id="progressBar"></div></div>
+    </div>
+    <div class="bar">
+      <div class="bar-label"><span>Period duration</span><b id="durationText">5 days</b></div>
+      <div class="bar-track"><div class="bar-fill" style="width:55%"></div></div>
+    </div>
+  </section>
+
+  <section class="card full">
+    <div class="calendar-head">
+      <button class="secondary" onclick="changeMonth(-1)">←</button>
+      <h3 id="monthTitle" style="margin:0"></h3>
+      <button class="secondary" onclick="changeMonth(1)">→</button>
+    </div>
+
+    <div class="calendar" id="calendar"></div>
+
+    <div class="legend">
+      <span><i class="dot period-dot"></i>Period</span>
+      <span><i class="dot ov-dot"></i>Ovulation</span>
+      <span><i class="dot today-dot"></i>Today</span>
+    </div>
+  </section>
+
+  <section class="card wide" id="tracker">
+    <h3>Daily Check-in</h3>
+
+    <label>Mood</label>
+    <select id="mood">
+      <option value="">Select mood</option>
+      <option>😊 Happy</option>
+      <option>😌 Calm</option>
+      <option>🥰 Loved</option>
+      <option>😐 Neutral</option>
+      <option>😔 Sad</option>
+      <option>😤 Irritated</option>
+      <option>😴 Tired</option>
+      <option>🥺 Emotional</option>
+    </select>
+
+    <label>Symptoms</label>
+    <div class="symptoms" id="symptoms">
+      <button class="symptom" data-value="Cramps">Cramps</button>
+      <button class="symptom" data-value="Headache">Headache</button>
+      <button class="symptom" data-value="Bloating">Bloating</button>
+      <button class="symptom" data-value="Back pain">Back pain</button>
+      <button class="symptom" data-value="Acne">Acne</button>
+      <button class="symptom" data-value="Fatigue">Fatigue</button>
+      <button class="symptom" data-value="Tender breasts">Tender breasts</button>
+      <button class="symptom" data-value="Cravings">Cravings</button>
+      <button class="symptom" data-value="Nausea">Nausea</button>
+    </div>
+
+    <label>Notes</label>
+    <textarea id="notes" placeholder="How are you feeling today?"></textarea>
+
+    <br>
+    <button class="primary" onclick="saveCheckin()">Save Check-in</button>
+  </section>
+
+  <section class="card">
+    <h3>Today's Status</h3>
+    <div id="todayStatus" class="empty">No check-in yet.</div>
+  </section>
+
+  <section class="card">
+    <h3>Statistics</h3>
+    <div>
+      <div class="muted">Cycles logged</div>
+      <strong id="cyclesLogged">0</strong>
+    </div>
+    <br>
+    <div>
+      <div class="muted">Average period</div>
+      <strong id="avgPeriod">5 days</strong>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>Reminders</h3>
+    <label>Period reminder</label>
+    <select id="reminder">
+      <option>Off</option>
+      <option>1 day before</option>
+      <option>2 days before</option>
+      <option>3 days before</option>
+    </select>
+    <br><br>
+    <button class="secondary" onclick="saveReminder()">Save Reminder</button>
+  </section>
+
+  <section class="card full">
+    <h3>Privacy</h3>
+    <p class="muted">
+      Your information is stored locally in this browser using localStorage.
+      Nothing in this demo requires an account or server.
+    </p>
+    <button class="secondary" onclick="clearData()">Delete All Data</button>
+  </section>
+
+</div>
+
+<footer>
+  Luna • Cycle tracking made simple 💗
+  <br><br>
+  Predictions are estimates and should not be used as medical advice or contraception.
+</footer>
+</div>
+
+<div class="modal" id="periodModal">
+  <div class="modal-box">
+    <button class="close" onclick="closePeriodModal()">×</button>
+    <h2>🩸 Log Period</h2>
+
+    <label>Period start date</label>
+    <input type="date" id="periodStart">
+
+    <label>Period end date</label>
+    <input type="date" id="periodEnd">
+
+    <br><br>
+    <button class="primary" onclick="savePeriod()">Save Period</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY="luna-period-data-v1";
+
+let data=JSON.parse(localStorage.getItem(KEY)) || {
+  periods:[],
+  checkins:{},
+  reminder:"Off",
+  dark:false,
+  cycleLength:28,
+  periodLength:5
+};
+
+let calendarDate=new Date();
+
+const $=id=>document.getElementById(id);
+
+function todayISO(){
+  return new Date().toISOString().slice(0,10);
+}
+
+function dateObj(str){
+  const [y,m,d]=str.split("-").map(Number);
+  return new Date(y,m-1,d);
+}
+
+function iso(date){
+  const y=date.getFullYear();
+  const m=String(date.getMonth()+1).padStart(2,"0");
+  const d=String(date.getDate()).padStart(2,"0");
+  return `${y}-${m}-${d}`;
+}
+
+function save(){
+  localStorage.setItem(KEY,JSON.stringify(data));
+}
+
+function toast(message){
+  const el=$("toast");
+  el.textContent=message;
+  el.style.display="block";
+  setTimeout(()=>el.style.display="none",2200);
+}
+
+function toggleDark(){
+  data.dark=!data.dark;
+  document.body.classList.toggle("dark",data.dark);
+  save();
+}
+
+function openPeriodModal(){
+  $("periodModal").classList.add("show");
+  $("periodStart").value=todayISO();
+  $("periodEnd").value="";
+}
+
+function closePeriodModal(){
+  $("periodModal").classList.remove("show");
+}
+
+function savePeriod(){
+  const start=$("periodStart").value;
+  const end=$("periodEnd").value || start;
+
+  if(!start){
+    toast("Please select a start date.");
+    return;
+  }
+
+  if(end<start){
+    toast("End date cannot be before start date.");
+    return;
+  }
+
+  data.periods.push({
+    start,
+    end
+  });
+
+  data.periods.sort((a,b)=>a.start.localeCompare(b.start));
+
+  save();
+  closePeriodModal();
+  render();
+  toast("Period saved 💗");
+}
+
+function getLatestPeriod(){
+  if(!data.periods.length)return null;
+
+  const today=todayISO();
+
+  const past=data.periods
+    .filter(p=>p.start<=today)
+    .sort((a,b)=>b.start.localeCompare(a.start));
+
+  return past[0] || data.periods[data.periods.length-1];
+}
+
+function averageCycle(){
+  if(data.periods.length<2)return data.cycleLength||28;
+
+  let gaps=[];
+
+  for(let i=1;i<data.periods.length;i++){
+    const a=dateObj(data.periods[i-1].start);
+    const b=dateObj(data.periods[i].start);
+    const days=Math.round((b-a)/86400000);
+
+    if(days>=15 && days<=90)gaps.push(days);
+  }
+
+  if(!gaps.length)return data.cycleLength||28;
+
+  return Math.round(gaps.reduce((a,b)=>a+b,0)/gaps.length);
+}
+
+function averagePeriod(){
+  if(!data.periods.length)return 5;
+
+  let total=0;
+
+  data.periods.forEach(p=>{
+    total+=Math.round(
+      (dateObj(p.end)-dateObj(p.start))/86400000
+    )+1;
+  });
+
+  return Math.round(total/data.periods.length);
+}
+
+function addDays(date,days){
+  const d=new Date(date);
+  d.setDate(d.getDate()+days);
+  return d;
+}
+
+function calculate(){
+  const latest=getLatestPeriod();
+
+  if(!latest)return null;
+
+  const cycle=averageCycle();
+  const start=dateObj(latest.start);
+  const next=addDays(start,cycle);
+
+  const ovulation=addDays(next,-14);
+  const fertileStart=addDays(ovulation,-5);
+  const fertileEnd=addDays(ovulation,1);
+
+  const now=new Date();
+  const cycleDay=Math.max(
+    1,
+    Math.floor((now-start)/86400000)+1
+  );
+
+  const progress=Math.min(
+    100,
+    Math.round((cycleDay/cycle)*100)
+  );
+
+  return {
+    latest,
+    cycle,
+    next,
+    ovulation,
+    fertileStart,
+    fertileEnd,
+    cycleDay,
+    progress
+  };
+}
+
+function formatDate(date){
+  return date.toLocaleDateString(undefined,{
+    month:"short",
+    day:"numeric"
+  });
+}
+
+function renderDashboard(){
+  const c=calculate();
+
+  $("cyclesLogged").textContent=data.periods.length;
+  $("avgPeriod").textContent=averagePeriod()+" days";
+  $("cycleLength").textContent=averageCycle();
+  $("durationText").textContent=averagePeriod()+" days";
+
+  if(!c){
+    $("cycleTitle").textContent="Welcome to Luna 🌸";
+    $("cycleMessage").textContent="Log your latest period to begin tracking.";
+    $("nextPeriod").textContent="—";
+    $("periodDate").textContent="No period logged";
+    $("ovulationDate").textContent="—";
+    $("cycleProgress").style.width="0%";
+    $("progressText").textContent="0%";
+    $("progressBar").style.width="0%";
+    return;
+  }
+
+  $("cycleTitle").textContent=`Cycle Day ${c.cycleDay}`;
+  $("cycleMessage").textContent=
+    `Estimated next period ${formatDate(c.next)}.`;
+
+  $("nextPeriod").textContent=formatDate(c.next);
+  $("periodDate").textContent=
+    `${Math.max(0,Math.ceil((c.next-new Date())/86400000))} days away`;
+
+  $("ovulationDate").textContent=formatDate(c.ovulation);
+
+  $("cycleProgress").style.width=c.progress+"%";
+  $("progressText").textContent=c.progress+"%";
+  $("progressBar").style.width=c.progress+"%";
+}
+
+function renderCalendar(){
+  const year=calendarDate.getFullYear();
+  const month=calendarDate.getMonth();
+
+  $("monthTitle").textContent=
+    calendarDate.toLocaleDateString(undefined,{
+      month:"long",
+      year:"numeric"
+    });
+
+  const cal=$("calendar");
+  cal.innerHTML="";
+
+  ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(d=>{
+    const el=document.createElement("div");
+    el.className="day-name";
+    el.textContent=d;
+    cal.appendChild(el);
+  });
+
+  const first=new Date(year,month,1);
+  const last=new Date(year,month+1,0);
+
+  for(let i=0;i<first.getDay();i++){
+    cal.appendChild(document.createElement("div"));
+  }
+
+  const c=calculate();
+
+  for(let day=1;day<=last.getDate();day++){
+    const d=new Date(year,month,day);
+    const key=iso(d);
+
+    const el=document.createElement("div");
+    el.className="day";
+    el.textContent=day;
+
+    if(key===todayISO())el.classList.add("today");
+
+    let isPeriod=false;
+
+    data.periods.forEach(p=>{
+      if(key>=p.start && key<=p.end)isPeriod=true;
+    });
+
+    if(isPeriod){
+      el.classList.add("period");
+      el.title="Period";
+    }
+
+    if(c){
+      const ov=iso(c.ovulation);
+      const fs=iso(c.fertileStart);
+      const fe=iso(c.fertileEnd);
+
+      if(key===ov){
+        el.classList.add("ovulation");
+        el.title="Estimated ovulation";
+      }else if(key>=fs && key<=fe && !isPeriod){
+        el.classList.add("fertile");
+        el.title="Estimated fertile window";
+      }
+    }
+
+    el.onclick=()=>{
+      if(confirm(`Log ${key} as a period start?`)){
+        data.periods.push({
+          start:key,
+          end:key
+        });
+        data.periods.sort((a,b)=>a.start.localeCompare(b.start));
+        save();
+        render();
+        toast("Period day added.");
+      }
+    };
+
+    cal.appendChild(el);
+  }
+}
+
+function renderToday(){
+  const item=data.checkins[todayISO()];
+
+  if(!item){
+    $("todayStatus").innerHTML=
+      `<div class="empty">No check-in yet.<br>Tell Luna how you're feeling today.</div>`;
+    return;
+  }
+
+  $("todayStatus").innerHTML=`
+    <strong>${item.mood || "No mood"}</strong>
+    <p class="muted">${item.symptoms.join(", ") || "No symptoms"}</p>
+    <p>${item.notes || ""}</p>
+  `;
+}
+
+function renderReminder(){
+  $("reminder").value=data.reminder||"Off";
+}
+
+function render(){
+  document.body.classList.toggle("dark",data.dark);
+  renderDashboard();
+  renderCalendar();
+  renderToday();
+  renderReminder();
+}
+
+document.querySelectorAll(".symptom").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    btn.classList.toggle("active");
+  });
+});
+
+function saveCheckin(){
+  const selected=[
+    ...document.querySelectorAll(".symptom.active")
+  ].map(x=>x.dataset.value);
+
+  data.checkins[todayISO()]={
+    mood:$("mood").value,
+    symptoms:selected,
+    notes:$("notes").value.trim()
+  };
+
+  save();
+  renderToday();
+  toast("Check-in saved 💕");
+}
+
+function saveReminder(){
+  data.reminder=$("reminder").value;
+  save();
+  toast("Reminder preference saved.");
+}
+
+function changeMonth(amount){
+  calendarDate.setMonth(calendarDate.getMonth()+amount);
+  renderCalendar();
+}
+
+function scrollToTracker(){
+  $("tracker").scrollIntoView({
+    behavior:"smooth",
+    block:"center"
+  });
+}
+
+function exportData(){
+  const blob=new Blob(
+    [JSON.stringify(data,null,2)],
+    {type:"application/json"}
+  );
+
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+
+  a.href=url;
+  a.download="luna-period-data.json";
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+function clearData(){
+  if(!confirm(
+    "Delete all Luna data from this browser? This cannot be undone."
+  ))return;
+
+  localStorage.removeItem(KEY);
+  location.reload();
+}
+
+render();
+</script>
+</body>
+</html>
